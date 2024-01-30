@@ -38,5 +38,5 @@ jobs:
       - name: Get secrets and inject in environment
         uses: say8425/aws-secrets-manager-actions@v2
         with:
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+          AWS_DEFAULT_REGION: ${{ env.S3_BUCKET_REGION }}
           SECRET_NAME: ${{ env.secret_name }}
