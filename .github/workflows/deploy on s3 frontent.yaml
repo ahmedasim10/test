@@ -3,7 +3,7 @@ name: Deploy to s3
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   build:
@@ -13,23 +13,30 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       S3_BUCKET: saif-testa1
       S3_BUCKET_REGION: us-west-2
+      secret_name: s3secret
       #CLOUDFRONT_DIST_ID: E15N0798QH6491
     steps:
-        - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-        - name: Install dependencies
-          run: cd public && npm install --force
+      - name: Install dependencies
+        run: cd client && npm install --force
 
-        - name: Build
-          run: cd public && CI=false npm run build
+      - name: Build
+        run: cd client && CI=false npm run build
 
-        - name: Deploy to s3 bucket
-          uses: reggionick/s3-deploy@v3
-          with:
-            folder: ./build
-            bucket: ${{ env.S3_BUCKET }}
-            bucket-region: ${{ env.S3_BUCKET_REGION }}
-            #dist-id: ${{ env.CLOUDFRONT_DIST_ID }}
-            invalidation: /
-            no-cache: true
-            private: true
+      - name: Deploy to s3 bucket
+        uses: reggionick/s3-deploy@v3
+        with:
+          folder: ./build
+          bucket: ${{ env.S3_BUCKET }}
+          bucket-region: ${{ env.S3_BUCKET_REGION }}
+          #dist-id: ${{ env.CLOUDFRONT_DIST_ID }}
+          invalidation: /
+          no-cache: true
+          private: true
+
+      - name: Get secrets and inject in environment
+        uses: say8425/aws-secrets-manager-actions@v2
+        with:
+          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+          SECRET_NAME: ${{ env.secret_name }}
